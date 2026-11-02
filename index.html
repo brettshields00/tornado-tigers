@@ -5,6 +5,12 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <link rel="icon" href="logo.png">
 <link rel="apple-touch-icon" href="logo.png">
+<meta name="description" content="Schedule, duties and team info for the Tornado Tigers, Redmond Parks &amp; Rec 1st–2nd grade basketball.">
+<meta property="og:title" content="Tornado Tigers">
+<meta property="og:description" content="Schedule, duties and team info for families.">
+<meta property="og:image" content="https://brettshields00.github.io/tornado-tigers/logo.png">
+<meta property="og:url" content="https://brettshields00.github.io/tornado-tigers/">
+<meta name="theme-color" content="#fbf7f4">
 <title>Tornado Tigers</title>
 <meta name="color-scheme" content="light">
 <script>document.documentElement.setAttribute("data-theme","light")</script>
@@ -241,6 +247,19 @@ textarea{width:100%;min-height:72px;resize:vertical}
 footer .coachlink{color:var(--muted);font-weight:500}
 footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
 @media (prefers-reduced-motion:no-preference){.view{animation:fade .25s ease both}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+/* laptop / desktop: use the width, phones unchanged */
+@media (min-width:1024px){
+  .wrap{max-width:1120px}
+  [data-view="home"]{grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:start;grid-template-areas:"next skill" "welcome contacts" "welcome ."}
+  #nextCard{grid-area:next}#welcome{grid-area:welcome}#skillCard{grid-area:skill}#contactsCard{grid-area:contacts}
+  #nextCard{min-height:100%}
+  [data-view="schedule"] .tl{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  [data-view="schedule"] details.past .tl{grid-template-columns:repeat(2,minmax(0,1fr))}
+  [data-view="snacks"]{grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:start}
+  [data-view="snacks"]>h2,[data-view="snacks"]>.updated,#snackList{grid-column:1/-1}
+  [data-view="info"]{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+  [data-view="info"]>h2{grid-column:1/-1}
+}
 </style>
 </head>
 <body>
@@ -279,7 +298,7 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
     <p class="banner">Want to help at practice? Extra hands are always welcome; just text Coach Brett. Game times and team updates will move to the league's TeamSideline app once it's ready. Everything else is under <a href="#schedule">Schedule</a> and <a href="#info">Info</a>.</p>
   </div>
   <div class="card skill" id="skillCard"><span class="label">This week's skill</span><p id="skFocus">Loading…</p><p class="tip" id="skTip"></p></div>
-  <div class="card"><span class="label">Questions or running late?</span>
+  <div class="card" id="contactsCard"><span class="label">Questions or running late?</span>
     <div class="contacts">
       <div class="contact"><div><div class="who">Coach Brett</div><div class="num">425-829-4113</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-829-4113">Copy number</button></div></div>
       <div class="contact"><div><div class="who">Coach Cameron <span class="num">(backup)</span></div><div class="num">425-736-4551</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-736-4551">Copy number</button></div></div>
@@ -383,7 +402,7 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
     var past=all.filter(function(e){return e.date&&pd(e.date)<today}),up=all.filter(function(e){return !(e.date&&pd(e.date)<today)});
     if(past.length){var dp=el('details','past');dp.appendChild(el('summary',null,'Show past weeks ('+past.length+')'));var tl=el('div','tl');past.forEach(function(e){tl.appendChild(evRow(e,n))});dp.appendChild(tl);box.appendChild(dp)}
     var cur='';var tl2=null;up.forEach(function(e){var m=e.date?MONL[pd(e.date).getMonth()]+' '+pd(e.date).getFullYear():'Dates coming from the league';if(m!==cur){cur=m;box.appendChild(el('div','month',m));tl2=el('div','tl');box.appendChild(tl2)}tl2.appendChild(evRow(e,n))})}
-  function famName(v){return v?(v==='Coaches'?'Coaches':v+"'s family"):'Open'}
+  function famName(v){return v?(v==='Coaches'?'Coaches':v+"'s family"):'TBD'}
   function dutySel(group,g,label){var v=ST[group][g.id];var s=document.createElement('select');s.id=group+'-'+g.id;s.setAttribute('aria-label',label+' for game '+g.n);var o=el('option',null,'Open');o.value='';s.appendChild(o);FAM.concat(['Coaches']).forEach(function(f){var op=el('option',null,famName(f));op.value=f;s.appendChild(op)});s.value=v||'';s.addEventListener('change',function(){if(s.value)ST[group][g.id]=s.value;else delete ST[group][g.id];markDirty();renderHome();renderSchedule()});return s}
   function renderSnacks(){var box=$('snackList');box.textContent='';var n=nextEv();
     ST.events.filter(function(e){return e.kind==='game'}).forEach(function(g){var r=el('div','sn'+(g===n?' mine':''));var l=el('div');l.appendChild(el('span','g','Game '+g.n));l.appendChild(el('small',null,fmt(g.date)+(g.time?' · '+g.time:'')));r.appendChild(l);
