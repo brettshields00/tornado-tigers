@@ -1,0 +1,541 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="logo.png">
+<link rel="apple-touch-icon" href="logo.png">
+<title>Tornado Tigers</title>
+<meta name="color-scheme" content="light">
+<script>document.documentElement.setAttribute("data-theme","light")</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bowlby+One+SC&family=Lexend:wght@300;400;500;600;700&display=swap">
+<style>
+/* Layout: phone-first single column. A scoreboard-style "Next up" card leads; bottom tab bar on phones, top tab bar on wide screens. Coach dashboard sits behind its own tab with a segmented control. */
+:root{
+  --bg:#fbf7f4; --surface:#ffffff; --sunk:#f4ede9; --ink:#1c1420; --muted:#6e6070; --line:#ebe1dd;
+  --orange:#e0650d; --orange-ink:#b84f05; --pink:#d42b78; --aqua:#0e95a5; --ok:#1d8a4a; --warn:#a96200; --bad:#b3263a;
+  --board:#fff0e2; --board-ink:#3a2418; --board-dim:#8a6650;
+  --display:"Bowlby One SC","Arial Black",Impact,sans-serif;
+  --body:"Lexend",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --r:18px; color-scheme:light;
+}
+:root[data-theme="dark"]{
+  --bg:#130e16; --surface:#1d1621; --sunk:#251c2a; --ink:#f7eef4; --muted:#b6a6b8; --line:#33283a;
+  --orange:#ff8a33; --orange-ink:#ffa45e; --pink:#ff5aa5; --aqua:#3fd0df; --ok:#4cc982; --warn:#f0b04a; --bad:#ff6b7f;
+  --board:#2a1e30; --board-ink:#fff6ef; --board-dim:#c9b8c6; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:80px}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5;font-weight:400}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.wrap{max-width:720px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2{font-family:var(--display);font-weight:400;line-height:1;margin:0;text-wrap:balance}
+h2{font-size:1.5rem}
+p{margin:0}
+a{color:var(--pink);font-weight:600}
+button{font:inherit;cursor:pointer;color:inherit}
+:is(a,button,input,select,textarea,summary):focus-visible{outline:3px solid var(--aqua);outline-offset:2px}
+.label{font-size:.72rem;letter-spacing:.13em;text-transform:uppercase;font-weight:600;color:var(--muted)}
+
+/* header */
+.top{display:flex;align-items:center;gap:12px;padding-block:14px 6px}
+.top img{width:52px;height:52px;flex:none}
+.top h1{font-size:1.45rem}
+.top h1 span{color:var(--orange)}
+.top p{font-size:.78rem;color:var(--muted);margin-top:3px}
+
+/* nav: bottom on phones, top on wide */
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding:4px max(8px,env(safe-area-inset-right,0px)) 4px max(8px,env(safe-area-inset-left,0px));display:flex;justify-content:space-around;gap:2px}
+nav.tabs a{flex:1;display:grid;justify-items:center;gap:2px;text-decoration:none;color:var(--muted);font-size:.72rem;font-weight:600;padding:6px 2px;border-radius:12px;min-width:0}
+nav.tabs a svg{width:20px;height:20px}
+nav.tabs a[aria-current="page"]{color:var(--orange-ink);background:var(--sunk)}
+nav.tabs a.coach{color:var(--aqua)}
+main{padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+@media (min-width:760px){
+  nav.tabs{justify-content:center;gap:6px;padding-block:8px}
+  nav.tabs a{flex:none;grid-auto-flow:column;align-items:center;gap:8px;font-size:.92rem;padding:8px 16px}
+  nav.tabs a svg{width:18px;height:18px}
+  main{padding-bottom:60px}
+}
+.view{display:grid;gap:16px;padding-block:14px 8px;min-width:0}
+.view>*,.card>*,.famedit>*{min-width:0}
+
+/* scoreboard next-up */
+.board{background:linear-gradient(135deg,#fff3e6 0%,#ffe2c7 100%);border:1px solid #f6cfa8;color:var(--board-ink);border-radius:20px;padding:14px 16px;display:grid;gap:8px;position:relative;overflow:hidden}
+.board::after{content:"";position:absolute;right:-60px;top:-60px;width:200px;height:200px;border:3px solid rgba(224,101,13,.12);border-radius:50%}
+.board .row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.board .label{color:var(--board-dim)}
+.when{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px}
+.when .day{font-family:var(--display);font-size:clamp(1.45rem,6.5vw,1.9rem);line-height:.95;color:var(--board-ink)}
+.when .time{font-family:var(--display);font-size:clamp(1.1rem,5vw,1.4rem);color:var(--orange-ink);font-variant-numeric:tabular-nums}
+.board .what{font-size:1rem;font-weight:600}
+.board .where{color:var(--board-dim);font-size:.92rem}
+.board .where a{color:var(--board-ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:.74rem;font-weight:500;padding:3px 9px;border-radius:999px;background:rgba(255,255,255,.7);color:var(--board-ink)}
+.status{font-size:.74rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:999px;white-space:nowrap}
+.status.on{background:#1d8a4a;color:#fff}
+.status.off{background:#b3263a;color:#fff}
+.status.maybe{background:#f0b04a;color:#1c1420}
+.status.tbd{background:rgba(255,255,255,.7);color:var(--board-ink)}
+.bnote{background:rgba(255,255,255,.7);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:500}
+.ev .enote{color:var(--orange-ink);font-weight:600}
+.countdown{font-size:.82rem;color:var(--board-dim)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;display:grid;gap:10px;min-width:0}
+.skill b{font-weight:600}
+.tip{background:var(--sunk);border-radius:12px;padding:10px 12px;font-size:.93rem}
+.tip strong{color:var(--aqua)}
+.contacts{display:grid;gap:8px}
+.contact{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 10px;align-items:center}
+.contact .who{font-weight:600}
+.contact .num{color:var(--muted);font-size:.9rem;font-variant-numeric:tabular-nums}
+.btns{display:flex;gap:6px}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:.86rem;font-weight:600;text-decoration:none;min-height:38px}
+.btn.solid{background:var(--orange);border-color:var(--orange);color:#fff}
+.btn:disabled{opacity:.5;cursor:default}
+
+/* schedule timeline */
+.month{font-family:var(--display);font-size:1.05rem;color:var(--muted);margin:10px 0 2px}
+.tl{display:grid;gap:8px}
+.ev{display:grid;grid-template-columns:54px minmax(0,1fr);gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:12px 14px;align-items:start}
+.ev .date{display:grid;justify-items:center;border-radius:12px;background:var(--sunk);padding:6px 0;font-variant-numeric:tabular-nums}
+.ev .date b{font-family:var(--display);font-size:1.3rem;line-height:1}
+.ev .date span{font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ev .body{display:grid;gap:4px;min-width:0}
+.ev .head{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.ev .head b{font-weight:600}
+.ev small{color:var(--muted);font-size:.86rem}
+.ev .home{font-size:.88rem;color:var(--muted)}
+.ev .home strong{color:var(--aqua);font-weight:600}
+.ev.game{border-color:var(--pink);background:linear-gradient(90deg,color-mix(in srgb,var(--pink) 9%,var(--surface)) 0,var(--surface) 70%)}
+.ev.game .date{background:var(--pink);color:#fff}.ev.game .date span{color:#fff}
+.ev.isnext{box-shadow:0 0 0 2px var(--orange)}
+.ev.off{opacity:.6}.ev.off .head b{text-decoration:line-through}
+.tag{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:999px;white-space:nowrap}
+.tag.game{background:var(--pink);color:#fff}
+.tag.off{border:1px solid var(--bad);color:var(--bad)}
+.tag.maybe{border:1px dashed var(--warn);color:var(--warn)}
+.tag.tbd{border:1px dashed var(--muted);color:var(--muted)}
+details.past{border:1px dashed var(--line);border-radius:16px;padding:8px 12px}
+details.past summary{cursor:pointer;color:var(--muted);font-weight:600;font-size:.9rem}
+details.past .tl{margin-top:10px}
+
+/* snacks */
+.snacks{display:grid;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.sn{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--line)}
+.sn:first-child{border-top:0}
+.sn .g{font-weight:600}
+.sn small{display:block;color:var(--muted);font-size:.84rem;font-variant-numeric:tabular-nums}
+.duties{display:grid;gap:4px;justify-items:end}
+.duty{display:flex;gap:8px;align-items:center}
+.duty .dl{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.duty select{max-width:170px}
+.sn .fam{font-weight:600;color:var(--orange-ink);text-align:right}
+.sn .fam.open{color:var(--muted);font-weight:400;font-style:italic}
+.sn.mine{background:var(--sunk)}
+.updated{font-size:.82rem;color:var(--muted)}
+ul.dots{margin:0;padding-left:18px;display:grid;gap:6px}
+
+/* info accordions */
+details.acc{background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+details.acc>summary{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;display:flex;justify-content:space-between;align-items:center;gap:10px}
+details.acc>summary::-webkit-details-marker{display:none}
+details.acc>summary::after{content:"+";font-size:1.3rem;color:var(--muted);line-height:1}
+details.acc[open]>summary::after{content:"–"}
+details.acc .in{padding:0 16px 16px;display:grid;gap:10px;color:var(--ink)}
+.roster{display:flex;flex-wrap:wrap;gap:8px}
+.roster span{background:var(--sunk);border-radius:999px;padding:5px 13px;font-weight:600;font-size:.92rem}
+
+/* coach */
+.coachhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.seg{display:flex;gap:4px;overflow-x:auto;background:var(--sunk);border-radius:14px;padding:4px;scrollbar-width:none}
+.seg button{flex:1 0 auto;border:0;background:transparent;padding:8px 8px;border-radius:10px;font-size:.84rem;font-weight:600;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+.famedit{border:2px dashed var(--aqua);border-radius:var(--r);padding:12px 14px;display:grid;gap:10px}
+.famedit .label{color:var(--aqua)}
+.fields{display:flex;flex-wrap:wrap;gap:10px}
+.fields label{display:grid;gap:3px;font-size:.78rem;color:var(--muted);min-width:0}
+input[type=text],input[type=date],select,textarea{font:inherit;font-size:.92rem;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:7px 9px;max-width:100%}
+textarea{width:100%;min-height:72px;resize:vertical}
+.blocks{display:grid;gap:8px}
+.setupline{font-size:.88rem;color:var(--muted)}
+.setupline strong{color:var(--ink)}
+.checklist{display:grid}
+.ck{display:grid;grid-template-columns:26px minmax(0,1fr);gap:10px;padding:11px 2px;border-top:1px solid var(--line);cursor:pointer;align-items:start}
+.ck:first-child{border-top:0}
+.ck input{width:22px;height:22px;margin-top:1px;accent-color:var(--ok)}
+.ckh{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.ctime{font-size:.8rem;font-weight:600;color:var(--orange-ink);font-variant-numeric:tabular-nums;min-width:38px}
+.ckh b{font-weight:600}
+.chow{font-size:.9rem;margin-top:3px}
+.crole{font-size:.78rem;color:var(--pink);font-weight:600;margin-top:4px}
+.court{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0}
+.court span{background:var(--aqua);color:#fff;font-weight:600;border-radius:12px;padding:10px 14px;font-size:1rem}
+.swap{background:var(--sunk);border-radius:12px;padding:10px 12px;display:grid;gap:4px;margin-top:8px}
+.rot th.cur,.rot td.cur{background:color-mix(in srgb,var(--orange) 14%,transparent)}
+.small{font-size:.82rem;color:var(--muted)}
+.ccue{font-size:.86rem;color:var(--aqua);margin-top:3px;font-weight:500}
+.ck.done .ckt{opacity:.45}
+.ck.done .ckh b{text-decoration:line-through}
+.sub{display:grid;gap:6px;padding:10px 12px;border-radius:12px;background:var(--sunk);font-size:.92rem}
+.sub.say{background:color-mix(in srgb,var(--aqua) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--aqua) 35%,transparent)}
+.blk2{border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.blk2>summary{list-style:none;cursor:pointer;display:grid;gap:2px;padding:10px 12px}
+.blk2>summary::-webkit-details-marker{display:none}
+.blk2 .t{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap;font-size:.76rem;color:var(--muted)}
+.blk2 .t b{color:var(--orange-ink);font-size:.82rem;font-variant-numeric:tabular-nums}
+.blk2 .dn{font-weight:600}
+.blk2 .bb{padding:0 12px 12px;display:grid;gap:8px;font-size:.92rem}
+.blk2 .quote{background:var(--sunk);border-left:3px solid var(--aqua);padding:8px 10px;border-radius:8px}
+.chips2{display:flex;flex-wrap:wrap;gap:6px}
+.chips2 span{font-size:.78rem;padding:3px 9px;border-radius:999px;background:var(--sunk)}
+.chips2 .c2{color:var(--pink)}
+.blk{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:10px 12px;background:var(--sunk);border-radius:12px}
+.blk .t{font-size:.78rem;font-weight:600;color:var(--orange-ink);font-variant-numeric:tabular-nums}
+.blk .k{font-size:.84rem;color:var(--muted);margin-top:2px}
+.att{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.att button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 6px;font-weight:600;font-size:.9rem}
+.att button[aria-pressed="true"]{background:var(--aqua);border-color:var(--aqua);color:#fff}
+.stat{display:flex;gap:22px}
+.stat div{display:grid}
+.stat b{font-family:var(--display);font-size:1.6rem;line-height:1}
+.stat span{font-size:.78rem;color:var(--muted)}
+.task{display:grid;grid-template-columns:26px minmax(0,1fr) auto;gap:10px;align-items:start;padding:9px 0;border-top:1px solid var(--line);font-size:.93rem}
+.task:first-child{border-top:0}
+.task input{width:20px;height:20px;margin-top:2px;accent-color:var(--orange)}
+.task.done label{text-decoration:line-through;color:var(--muted)}
+.task .due{font-size:.76rem;color:var(--muted);white-space:nowrap}
+.task .due.late{color:var(--bad);font-weight:600}
+.task .x{border:0;background:none;color:var(--muted);padding:0 4px;font-size:.85rem}
+.addrow{display:flex;flex-wrap:wrap;gap:8px}
+.addrow input[type=text]{flex:1 1 200px}
+.players{display:grid;gap:10px}
+.pl{display:grid;gap:8px}
+.pl summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:10px;font-weight:600}
+.pl summary::-webkit-details-marker{display:none}
+.pl summary small{color:var(--muted);font-weight:400}
+.pl dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 12px;margin:0;font-size:.88rem}
+.pl dt{color:var(--muted)}
+.pl dd{margin:0;overflow-wrap:anywhere}
+.flag{font-size:.7rem;font-weight:700;color:var(--bad);border:1px solid var(--bad);border-radius:999px;padding:1px 7px;margin-left:6px}
+.rot{overflow-x:auto}
+.rot table{border-collapse:collapse;width:100%;min-width:0;font-size:.84rem;font-variant-numeric:tabular-nums}
+.rot th,.rot td{padding:7px 3px;border-top:1px solid var(--line);text-align:center}
+.rot thead th{border-top:0;font-size:.68rem;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.rot td:first-child,.rot th:first-child{text-align:left}
+.rot td.on{color:var(--aqua);font-weight:700}
+.rot td.off{color:var(--line)}
+.kv{display:grid;gap:0}
+.kv>div{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:9px 0;border-top:1px solid var(--line);font-size:.9rem;align-items:center}
+.kv>div:first-child{border-top:0}
+.kv .v{text-align:right;color:var(--muted);overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.banner{font-size:.88rem;color:var(--muted)}
+.banner.warn{color:var(--warn)}
+.empty{color:var(--muted);font-style:italic}
+.savebar{position:fixed;left:0;right:0;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:25;padding:0 max(12px,env(safe-area-inset-left,0px))}
+.savebar .inner{max-width:720px;margin:0 auto;background:#1c1420;color:#fff6ef;border-radius:16px;padding:10px 12px 10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.savebar span{font-size:.88rem}
+@media (min-width:760px){.savebar{bottom:16px}}
+footer .coachlink{color:var(--muted);font-weight:500}
+footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
+@media (prefers-reduced-motion:no-preference){.view{animation:fade .25s ease both}@keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}}
+</style>
+</head>
+<body>
+<header class="wrap top">
+  <img src="logo.png" alt="Tornado Tigers logo" width="52" height="52">
+  <div><h1>Tornado <span>Tigers</span></h1><p>Redmond Parks &amp; Rec · 1st–2nd grade</p></div>
+</header>
+
+<nav class="tabs" id="tabs" aria-label="Sections">
+  <a href="#home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>Home</a>
+  <a href="#schedule"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Schedule</a>
+  <a href="#snacks"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="13" r="7"/><path d="M12 6c0-2 1-3 3-3"/></svg>Duties</a>
+  <a href="#info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/></svg>Info</a>
+  
+</nav>
+
+<main class="wrap">
+
+<section class="view" data-view="home">
+  <div class="board" id="nextCard">
+    <div class="row"><span class="label">Next up · <span id="nCount"></span></span><span class="status tbd" id="nStatus">—</span></div>
+    <div class="when"><span class="day" id="nDay">Tue Nov 3</span><span class="time" id="nTime">5:30 PM</span></div>
+    <div><p class="what" id="nWhat">Practice 1 · Ready &amp; stop</p><p class="where" id="nWhere">Rockwell Elementary</p></div>
+    <div class="chips" id="nBring"></div>
+    <p class="bnote" id="nNote" hidden></p>
+  </div>
+  <div class="card welcome" id="welcome"><span class="label">Welcome to the team</span>
+    <p>Thanks for being part of our season. Most of our players are brand new to basketball, so our goals are simple: <strong>make friends, learn the basics, and have fun.</strong></p>
+    <p class="banner">12 Tuesday practices starting Nov 3, and 8 Saturday games from Dec 5 to early February.</p>
+    <div><p><strong>What we ask of families</strong></p><ul class="dots">
+      <li>Let a coach know 24 hours ahead if your player will miss a game, so playing time stays fair.</li>
+      <li>Drop off at 5:30 and pick up at 6:30. Doors can open a few minutes late.</li>
+      <li>Help with snacks and the game clock once or twice a season (see <a href="#snacks">Duties</a>).</li>
+      <li>Send any allergy or medical notes to Coach Brett privately.</li>
+      <li>Cheer for every player on both teams.</li></ul></div>
+    <p class="banner">Want to help at practice? Extra hands are always welcome; just text Coach Brett. Game times and team updates will move to the league's TeamSideline app once it's ready. Everything else is under <a href="#schedule">Schedule</a> and <a href="#info">Info</a>.</p>
+  </div>
+  <div class="card skill" id="skillCard"><span class="label">This week's skill</span><p id="skFocus">Loading…</p><p class="tip" id="skTip"></p></div>
+  <div class="card"><span class="label">Questions or running late?</span>
+    <div class="contacts">
+      <div class="contact"><div><div class="who">Coach Brett</div><div class="num">425-829-4113</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-829-4113">Copy number</button></div></div>
+      <div class="contact"><div><div class="who">Coach Cameron <span class="num">(backup)</span></div><div class="num">425-736-4551</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-736-4551">Copy number</button></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="view" data-view="schedule" hidden>
+  <h2>Schedule</h2>
+  <p class="banner">Practices Tuesdays 5:30–6:30 at Rockwell. Games Saturdays from Dec 5; times come from the league in mid-November. No practice when school is out.</p>
+  <p class="tip"><strong>How practices work:</strong> each week has one focus, and the skills build on each other through the season. We'll adjust as we go based on what the team needs.</p>
+  <div id="tl"></div>
+</section>
+
+<section class="view" data-view="snacks" hidden>
+  <h2>Snacks &amp; clock</h2>
+  <div class="card"><span class="label">How it works</span>
+    <ul class="dots">
+      <li>Kari Shields is coordinating snack sign-ups; details coming soon.</li>
+      <li>Each family brings snacks for one game, for 8 players.</li>
+      <li>Keep it simple: a drink (water or juice boxes), fruit, and one small treat.</li>
+      <li><strong>Nut-free, please</strong>, individually packaged if you can.</li>
+      <li>We hand snacks out outside the gym after the game; food isn't allowed on the court.</li>
+      <li>Can't make your game? Trade with another family and let Coach Brett know.</li>
+    </ul></div>
+  <div class="card"><span class="label">Clock / scorebook duty</span>
+    <ul class="dots">
+      <li>The league needs one grown-up from our team at the scorer's table each game.</li>
+      <li>Each family takes one game, on a different week from their snack game.</li>
+      <li>Arrive 15 minutes early and check in at the scorer's table; the refs show you what to do. No experience needed.</li>
+    </ul></div>
+  <div class="snacks" id="snackList"></div>
+  <p class="updated" id="updated"></p>
+
+</section>
+
+<section class="view" data-view="info" hidden>
+  <h2>Team info</h2>
+  <details class="acc" open><summary>What to bring</summary><div class="in"><ul class="dots"><li>Gym shoes and comfortable athletic clothes</li><li>Hair tied back, no jewelry</li><li>A water bottle (water only in the gym)</li><li>Jersey on game days. Jerseys arrive mid-November; players keep them and their basketballs.</li></ul></div></details>
+  <details class="acc"><summary>Practice and drop-off</summary><div class="in"><p>Tuesdays 5:30–6:30 pm at Rockwell Elementary, 11125 162nd Ave NE, Redmond. Park in the front lot. The custodian unlocks around 5:30, so you may wait a few minutes. The league asks families to drop off or wait in the car; on the first night, please stay the first 5 minutes so we can all meet. Please pick up at 6:30.</p></div></details>
+  <details class="acc"><summary>Games</summary><div class="in"><p>Saturdays, Dec 5 to early February, at Redmond Middle School or the Redmond Senior &amp; Community Center. Arrive 15 minutes early. The league lists us as “Shields.” No bouncing balls in the lobby, and the community center's upstairs is off-limits.</p></div></details>
+  <details class="acc"><summary>Playing time and missing a game</summary><div class="in"><p>The league's spirit is equal playing time. Five players play at once and we have eight, so we rotate every five minutes. No score or standings are kept at this age.</p><p>Missing a game? Please tell Coach Brett at least 24 hours ahead so the rotation stays fair. For practice, just a heads-up if your player will miss more than one.</p></div></details>
+  <details class="acc"><summary>Bad weather</summary><div class="in"><p>The league posts game decisions by 7:30 am on game day at <a href="https://www.redmond.gov/sports" target="_blank" rel="noopener">redmond.gov/sports</a>. No practice when school is canceled.</p></div></details>
+  <details class="acc"><summary>From the sidelines</summary><div class="in"><p>From the league's code of conduct: kids play to have fun, coaches are volunteers, officials are human, and parents are cheerleaders. Cheer for every player on both teams, and leave the coaching and the calls to the coaches and refs.</p></div></details>
+  <details class="acc"><summary>Our team</summary><div class="in"><div class="roster" id="roster"></div><p><strong>Coach Brett Shields</strong> (Andie's dad) · 425-829-4113<br><strong>Coach Cameron O'Brochta</strong> (Evelyn's parent) · 425-736-4551</p></div></details>
+</section>
+
+
+
+<footer>Tornado Tigers · City of Redmond Youth Basketball League</footer>
+</main>
+
+
+
+<script type="application/json" id="tt-state">{"updated":"2026-11-02T01:06:28.511Z","families":["Andie","Eva","Evelyn","Jovie","Remmi","Riley","Sophie","Soraya"],"events":[{"id":"p01","kind":"practice","n":1,"date":"2026-11-03","theme":"Dribble, pass, shoot","focus":"Meeting teammates, dribbling and stopping, passing to a coach, and shooting close to the basket","home":"Play catch with a soft ball using two hands.","status":"planned","time":"5:30 pm","place":"Rockwell","note":"Grown-ups: please stay the first 5 minutes so we can all meet."},{"id":"p02","kind":"practice","n":2,"date":"2026-11-10","theme":"Eyes-up dribbling","focus":"Dribbling while looking up, switching hands, keeping the ball safe; learning traveling and double dribble","home":"Dribble while a grown-up holds up fingers; call out the number.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p03","kind":"practice","n":3,"date":"2026-11-17","theme":"Shooting","focus":"Shooting form (balance, elbow in, eyes on the rim, follow through), close-in shots and layup steps","home":"Form shots into a laundry basket: elbow in, follow through.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p04","kind":"practice","n":4,"date":"2026-11-24","theme":"Passing","focus":"Bounce and chest passes, catching with two hands, passing then cutting to the basket; wristbands and sportsmanship","home":"Play catch: step toward the thrower and call their name.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p05","kind":"practice","n":5,"date":"2026-12-01","theme":"Game-day prep","focus":"Defensive stance and slides, running back on defense, and rehearsing a real game: jump ball, subs, halftime free throws","home":"Talk about Saturday: everyone plays, and we cheer for both teams.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"g1","kind":"game","n":1,"date":"2026-12-05","theme":"First game!","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"p06","kind":"practice","n":6,"date":"2026-12-08","theme":"Layups and finishing","focus":"Layups on both sides, faking a shot, finishing strong; what a foul is","home":"Walk through layup steps in the hallway: step, step, up.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p07","kind":"practice","n":7,"date":"2026-12-15","theme":"Rebounding","focus":"Grabbing rebounds with two hands, pivoting and passing out; quick shooting games","home":"Over winter break, 50 dribbles a day with each hand.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p-dec22","kind":"practice","n":0,"date":"2026-12-22","theme":"Winter break: practice to be confirmed","focus":"","home":"","status":"check","time":"","place":"","note":"School is on winter break Dec 21–Jan 1. We'll confirm whether the gym is open."},{"id":"p08","kind":"practice","n":8,"date":"2027-01-05","theme":"Welcome back","focus":"Refreshing dribbling, passing and shooting after the break; court words quiz","home":"50 dribbles with each hand before practice.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p09","kind":"practice","n":9,"date":"2027-01-12","theme":"Moving without the ball","focus":"Spacing, passing and cutting, faking one way and going the other","home":"Play monkey in the middle with a soft ball.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p10","kind":"practice","n":10,"date":"2027-01-19","theme":"Defense","focus":"Staying between your player and the basket, the pick-up line, running back after shots","home":"Slide races down the hallway, no crossing feet.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"p11","kind":"practice","n":11,"date":"2027-01-26","theme":"Running the floor","focus":"Full-court layups, rebounding and passing out, getting back on defense","home":"How many close-in shots in a row? Try to beat your best.","status":"check","time":"5:30 pm","place":"Rockwell"},{"id":"p12","kind":"practice","n":12,"date":"2027-02-02","theme":"Showcase","focus":"Skills check to see how far everyone has come, fun team games, and a scrimmage for families to watch","home":"Ask what they're most proud of this season.","status":"planned","time":"5:30 pm","place":"Rockwell"},{"id":"g2","kind":"game","n":2,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"g3","kind":"game","n":3,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"g4","kind":"game","n":4,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"g5","kind":"game","n":5,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"g6","kind":"game","n":6,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"g7","kind":"game","n":7,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""},{"id":"g8","kind":"game","n":8,"date":"","theme":"","focus":"","home":"","status":"tbd","time":"","place":""}],"snacks":{},"clock":{}}</script>
+<script>
+(function(){
+  var TEMPLATE=document.body.innerHTML;
+  var ST;try{ST=JSON.parse(document.getElementById('tt-state').textContent)}catch(e){ST={events:[],snacks:{},families:[]}}
+  if(!ST.snacks)ST.snacks={};if(!ST.clock)ST.clock={};var FAM=ST.families||[];
+  var MON=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],MONL=["January","February","March","April","May","June","July","August","September","October","November","December"],DOW=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  var $=function(id){return document.getElementById(id)||document.createElement('div')};
+  var el=function(t,c,x){var e=document.createElement(t);if(c)e.className=c;if(x!=null)e.textContent=x;return e};
+  function pd(s){if(!s)return null;var p=s.split('-');return new Date(+p[0],+p[1]-1,+p[2])}
+  function fmt(s){var x=pd(s);return x?DOW[x.getDay()]+" "+MON[x.getMonth()]+" "+x.getDate():"Date TBD"}
+  var today=new Date();today.setHours(0,0,0,0);
+  var COACH=false,db=null,ART=null,dirty=false,P={tasks:[],events:{},players:[],rotation:null},loaded={};
+  function label(e){return e.kind==='game'?'Game '+e.n:(e.n?'Practice '+e.n:'Practice')}
+  function sorted(){return ST.events.slice().sort(function(a,b){var x=a.date||"9999",y=b.date||"9999";return x<y?-1:x>y?1:(a.kind===b.kind?a.n-b.n:(a.kind<b.kind?-1:1))})}
+  function nextEv(){return sorted().find(function(e){return e.date&&pd(e.date)>=today&&e.status!=='canceled'})}
+  function stat(e){var s=e.status||'planned';if(s==='canceled')return['off','Canceled'];if(s==='check')return['maybe','Confirming'];if(s==='moved')return['maybe','Moved'];if(e.kind==='game'&&(!e.time||s==='tbd'))return['tbd','Time TBD'];return['on',"It's on"]}
+  function timeOf(e){return e.kind==='practice'?'5:30 PM':(e.time||'Time TBD')}
+  function placeOf(e){return e.kind==='practice'?'Rockwell Elementary · 11125 162nd Ave NE':(e.place||'Gym from the league soon')}
+
+  // routing
+  var VIEWS=["home","schedule","snacks","info","coach"];
+  function route(){var v=(location.hash||"#home").slice(1);if(VIEWS.indexOf(v)<0||(v==='coach'&&!COACH))v='home';
+    document.querySelectorAll('[data-view]').forEach(function(s){s.hidden=s.getAttribute('data-view')!==v||(s.classList.contains('coachonly')&&!COACH)});
+    document.querySelectorAll('#tabs a').forEach(function(a){if(a.getAttribute('href')==='#'+v)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});window.scrollTo(0,0)}
+  window.addEventListener('hashchange',route);
+
+  // family
+  function renderHome(){var n=nextEv();if(!n){$('nWhat').textContent='Season complete. Thanks for a great year!';return}
+    var s=stat(n);$('nStatus').className='status '+s[0];$('nStatus').textContent=s[1];
+    $('nDay').textContent=fmt(n.date);$('nTime').textContent=timeOf(n);$('nWhat').textContent=label(n)+(n.theme?' · '+n.theme:'');
+    var w=$('nWhere');w.textContent='';var a=el('a',null,placeOf(n));a.href='https://maps.google.com/?q='+encodeURIComponent(n.kind==='practice'?'Rockwell Elementary, 11125 162nd Ave NE, Redmond WA':(n.place||'Redmond WA'));a.target='_blank';a.rel='noopener';w.appendChild(a);
+    var b=$('nBring');b.textContent='';(n.kind==='game'?['Jersey','Gym shoes','Water bottle','Arrive 15 min early']:['Gym shoes','Water bottle','Hair tied back']).forEach(function(x){b.appendChild(el('span','chip',x))});
+    if(n.kind==='game'){b.appendChild(el('span','chip','Snacks: '+famName(ST.snacks[n.id])));b.appendChild(el('span','chip','Clock: '+famName(ST.clock[n.id])))}
+    var nn=$('nNote');nn.hidden=!n.note;nn.textContent=n.note||'';var d=Math.round((pd(n.date)-today)/864e5);$('nCount').textContent=d===0?'Today':d===1?'Tomorrow':'In '+d+' days';
+    var p=n.kind==='practice'?n:sorted().find(function(e){return e.kind==='practice'&&e.date&&pd(e.date)>=today&&e.status!=='canceled'});
+    if(p){$('skFocus').textContent='';var bb=el('b',null,p.theme+': ');$('skFocus').appendChild(bb);$('skFocus').appendChild(document.createTextNode(p.focus));var t=$('skTip');t.textContent='';t.appendChild(el('strong',null,'Try at home: '));t.appendChild(document.createTextNode(p.home));t.hidden=!p.home}else $('skillCard').hidden=true}
+  function evRow(e,n){var s=stat(e);var r=el('div','ev'+(e.kind==='game'?' game':'')+(e===n?' isnext':'')+(s[0]==='off'?' off':''));
+    var d=el('div','date');var x=pd(e.date);d.appendChild(el('span',null,x?DOW[x.getDay()]:'TBD'));d.appendChild(el('b',null,x?String(x.getDate()):'–'));r.appendChild(d);
+    var b=el('div','body');var h=el('div','head');h.appendChild(el('b',null,label(e)+(e.theme?' · '+e.theme:'')));
+    if(e.kind==='game')h.appendChild(el('span','tag game','Game'));if(s[0]==='off')h.appendChild(el('span','tag off','Canceled'));if(s[0]==='maybe')h.appendChild(el('span','tag maybe',s[1]));if(s[0]==='tbd'&&e.kind==='game')h.appendChild(el('span','tag tbd',s[1]));
+    b.appendChild(h);if(s[0]!=='off')b.appendChild(el('small',null,e.kind==='practice'?'5:30–6:30 pm · Rockwell':([e.time,e.place].filter(Boolean).join(' · ')||'Time and gym from the league')));
+    if(e.note&&s[0]!=='off')b.appendChild(el('small','enote',e.note));if(e.focus)b.appendChild(el('span',null,e.focus));if(e.home&&s[0]!=='off'){var t=el('span','home');t.appendChild(el('strong',null,'Try at home: '));t.appendChild(document.createTextNode(e.home));b.appendChild(t)}
+    if(e.kind==='game'&&(ST.snacks[e.id]||ST.clock[e.id]))b.appendChild(el('small',null,'Snacks: '+famName(ST.snacks[e.id])+' · Clock: '+famName(ST.clock[e.id])));
+    r.appendChild(b);return r}
+  function renderSchedule(){var box=$('tl');box.textContent='';var n=nextEv();var all=sorted();
+    var past=all.filter(function(e){return e.date&&pd(e.date)<today}),up=all.filter(function(e){return !(e.date&&pd(e.date)<today)});
+    if(past.length){var dp=el('details','past');dp.appendChild(el('summary',null,'Show past weeks ('+past.length+')'));var tl=el('div','tl');past.forEach(function(e){tl.appendChild(evRow(e,n))});dp.appendChild(tl);box.appendChild(dp)}
+    var cur='';var tl2=null;up.forEach(function(e){var m=e.date?MONL[pd(e.date).getMonth()]+' '+pd(e.date).getFullYear():'Dates coming from the league';if(m!==cur){cur=m;box.appendChild(el('div','month',m));tl2=el('div','tl');box.appendChild(tl2)}tl2.appendChild(evRow(e,n))})}
+  function famName(v){return v?(v==='Coaches'?'Coaches':v+"'s family"):'Open'}
+  function dutySel(group,g,label){var v=ST[group][g.id];var s=document.createElement('select');s.id=group+'-'+g.id;s.setAttribute('aria-label',label+' for game '+g.n);var o=el('option',null,'Open');o.value='';s.appendChild(o);FAM.concat(['Coaches']).forEach(function(f){var op=el('option',null,famName(f));op.value=f;s.appendChild(op)});s.value=v||'';s.addEventListener('change',function(){if(s.value)ST[group][g.id]=s.value;else delete ST[group][g.id];markDirty();renderHome();renderSchedule()});return s}
+  function renderSnacks(){var box=$('snackList');box.textContent='';var n=nextEv();
+    ST.events.filter(function(e){return e.kind==='game'}).forEach(function(g){var r=el('div','sn'+(g===n?' mine':''));var l=el('div');l.appendChild(el('span','g','Game '+g.n));l.appendChild(el('small',null,fmt(g.date)+(g.time?' · '+g.time:'')));r.appendChild(l);
+      var duties=el('div','duties');[['snacks','Snacks'],['clock','Clock']].forEach(function(d){var line=el('div','duty');line.appendChild(el('span','dl',d[1]));if(COACH)line.appendChild(dutySel(d[0],g,d[1]));else{var v=ST[d[0]][g.id];line.appendChild(el('span','fam'+(v?'':' open'),famName(v)))}duties.appendChild(line)});r.appendChild(duties);box.appendChild(r)});
+    if(ST.updated){var d=new Date(ST.updated);$('updated').textContent='Last updated '+MON[d.getMonth()]+' '+d.getDate()+', '+d.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})}}
+  function renderFamily(){renderHome();renderSchedule();renderSnacks()}
+  var ro=$('roster');FAM.forEach(function(f){ro.appendChild(el('span',null,f))});
+  document.querySelectorAll('.copy').forEach(function(b){b.addEventListener('click',function(){var t=b.dataset.copy;function sel(){b.textContent=t}try{navigator.clipboard.writeText(t).then(function(){b.textContent='Copied! Paste in a text';setTimeout(function(){b.textContent='Copy number'},2500)},sel)}catch(e){sel()}})});
+
+  // save public state
+  function markDirty(){dirty=true;$('savebar').hidden=false;$('saveBtn').disabled=false;$('saveMsg').textContent='Unsaved changes for families'}
+  function buildDoc(){var s=JSON.parse(JSON.stringify(ST));s.updated=new Date().toISOString();var json=JSON.stringify(s).replace(/</g,'\\u003c');var tag='<script type="application/json" id="tt-state">';var i=TEMPLATE.indexOf(tag),j=TEMPLATE.indexOf('</'+'script>',i);var body=TEMPLATE.slice(0,i+tag.length)+json+TEMPLATE.slice(j);var st=document.head.querySelector('style');return '<!doctype html><html data-theme="light"><head><meta charset=utf8><meta name="color-scheme" content="light"><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>'+(st?st.textContent:'')+'</style></head><body>'+body+'</body></html>'}
+  $('saveBtn').addEventListener('click',function(){if(!dirty||!ART)return;var b=this;b.disabled=true;$('saveMsg').textContent='Saving…';ART.publish(buildDoc()).then(function(){dirty=false;$('saveMsg').textContent='Saved. Families see it now.';setTimeout(function(){if(!dirty)$('savebar').hidden=true},2500)}).catch(function(e){b.disabled=false;$('saveMsg').textContent=(e&&e.code==='conflict')?'Someone saved first; reloaded. Make your change again.':'Could not save. Try again.'})});
+  window.addEventListener('beforeunload',function(e){if(dirty){e.preventDefault();e.returnValue=''}});
+
+  // coach
+  var FILES=[["K-2 rules, rules chart, code of conduct","files/K-2_League_Rules_and_Code_of_Conduct.pdf"],["Incident report form","files/Incident_Report_Form.pdf"],["Substitution charts","files/Substitution_Charts.pdf"],["60-minute practice template","files/60_Minute_Practice_Plan.pdf"],["Skills and drills handout","files/Skills_and_Drills.pdf"],["WinWin drill book","files/WINWIN_Drills.pdf"],["Coaches meeting slides","files/Coaches_Meeting_2026-2027.pdf"]];
+  var GROUPS=["Before first practice","Before game 1","During season","End of season"];
+  var queue=Promise.resolve();
+  function fail(e){var b=$('dbBanner');b.hidden=false;b.className='banner warn';b.textContent=(e&&e.code==='quota_exceeded')?'Storage is full. Delete a few old tasks.':'A change did not save. Check your connection and try again.'}
+  function write(path,data){if(!db)return;queue=queue.then(function(){return db.doc(path).update(data)}).catch(fail)}
+  var pane='tonight',pick=null;
+  function setPane(c){pane=c;document.querySelectorAll('#seg button').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.c===c?'true':'false')});document.querySelectorAll('[data-c-pane]').forEach(function(p){p.hidden=p.getAttribute('data-c-pane')!==c})}
+  document.querySelectorAll('#seg button').forEach(function(b){b.addEventListener('click',function(){setPane(b.dataset.c)})});
+  function curEv(){var id=pick||(nextEv()||{}).id;return ST.events.find(function(e){return e.id===id})||sorted()[0]}
+  function renderPick(){var s=$('evPick');s.textContent='';sorted().forEach(function(e){var o=el('option',null,fmt(e.date)+' · '+label(e)+(e.theme?' · '+e.theme:''));o.value=e.id;s.appendChild(o)});s.value=curEv().id}
+  $('evPick').addEventListener('change',function(){pick=this.value;renderTonight()});
+  function renderTonight(){var e=curEv();if(!e)return;var pv=P.events[e.id]||{};
+    var ff=$('famFields');ff.textContent='';function fld(l,inp){var lb=el('label',null,l);lb.appendChild(inp);ff.appendChild(lb)}
+    var st=document.createElement('select');st.id='fs-'+e.id;[['planned',"On"],['check','Confirming'],['moved','Moved'],['canceled','Canceled'],['tbd','Time TBD']].forEach(function(v){var o=el('option',null,v[1]);o.value=v[0];st.appendChild(o)});st.value=e.status||'planned';st.addEventListener('change',function(){e.status=st.value;markDirty();renderFamily()});fld('Status',st);
+    var dt=document.createElement('input');dt.type='date';dt.id='fd-'+e.id;dt.value=e.date||'';dt.addEventListener('change',function(){e.date=dt.value;markDirty();renderFamily();renderPick()});fld('Date',dt);
+    if(e.kind==='game'){var tm=document.createElement('input');tm.type='text';tm.id='ft-'+e.id;tm.value=e.time||'';tm.placeholder='9:00 am';tm.size=9;tm.addEventListener('change',function(){e.time=tm.value.trim();markDirty();renderFamily()});fld('Time',tm);var pl=document.createElement('input');pl.type='text';pl.id='fp-'+e.id;pl.value=e.place||'';pl.placeholder='Redmond Middle School';pl.addEventListener('change',function(){e.place=pl.value.trim();markDirty();renderFamily()});fld('Gym',pl)}
+    $('planTitle').textContent=e.kind==='game'?'Game day':(label(e)+' plan · '+e.theme);
+    var bl=$('blocks');bl.textContent='';var sh=pv.sheet;
+    if(sh){if(sh.setup){var su=el('p','setupline');su.appendChild(el('strong',null,'Before 5:30: '));su.appendChild(document.createTextNode(sh.setup));bl.appendChild(su)}
+      var D=Object.assign({},pv.done||{});var cnt=el('p','banner');function upd(){var n=sh.rows.filter(function(r,i){return D[i]}).length;cnt.textContent=n+' of '+sh.rows.length+' done'}
+      var ul=el('div','checklist');sh.rows.forEach(function(r,i){var row=el('label','ck'+(D[i]?' done':''));var cb=document.createElement('input');cb.type='checkbox';cb.id='ck-'+e.id+'-'+i;cb.checked=!!D[i];
+        cb.addEventListener('change',function(){D[i]=cb.checked;row.classList.toggle('done',cb.checked);upd();var u={done:{}};u.done[i]=cb.checked;write('events/'+e.id,u)});
+        row.appendChild(cb);var tx=el('div','ckt');var top=el('div','ckh');top.appendChild(el('span','ctime',r.t));top.appendChild(el('b',null,r.a));tx.appendChild(top);
+        if(r.how)tx.appendChild(el('div','chow',r.how));if(r.cue)tx.appendChild(el('div','ccue',r.cue));var rl=roleFor(r.a);if(rl)tx.appendChild(el('div','crole',rl));row.appendChild(tx);ul.appendChild(row)});
+      bl.appendChild(cnt);bl.appendChild(ul);upd()}
+    var pl=sh?null:pv.plan;
+    function list(title,items,cls){var c=el('div','sub '+(cls||''));c.appendChild(el('div','label',title));var u=el('ul','dots');items.forEach(function(x){u.appendChild(el('li',null,x))});c.appendChild(u);bl.appendChild(c)}
+    if(pl){if(pl.setup){var su=el('div','sub');su.appendChild(el('div','label','Before the players arrive'));su.appendChild(el('p',null,pl.setup));bl.appendChild(su)}
+      if(pl.opener)list('Say this first (huddle, 1–2 min)',pl.opener,'say');
+      pl.blocks.forEach(function(b,i){var d=el('details','blk2');if(i===0)d.open=true;var s=el('summary');var t=el('span','t');t.appendChild(el('b',null,b.clock));t.appendChild(el('span',null,b.section+' · template '+b.tpl));s.appendChild(t);s.appendChild(el('span','dn',b.drill));d.appendChild(s);
+        var body=el('div','bb');var q=el('p','quote');q.appendChild(el('strong',null,'Tell the players: '));q.appendChild(document.createTextNode(b.say));body.appendChild(q);
+        var r=el('p');r.appendChild(el('strong',null,'How to run it: '));r.appendChild(document.createTextNode(b.run));body.appendChild(r);
+        var ch=el('div','chips2');ch.appendChild(el('span','c1','Keys: '+b.keys));ch.appendChild(el('span','c2','Value: '+b.values));body.appendChild(ch);d.appendChild(body);bl.appendChild(d)});
+      if(pl.closer)list('Closing huddle',pl.closer,'say');
+      if(pl.eval){var ev=el('div','sub');ev.appendChild(el('div','label','After practice, ask yourself'));ev.appendChild(el('p',null,pl.eval));bl.appendChild(ev)}}
+    else if(sh){}
+    else if(pv.blocks&&pv.blocks.length){pv.blocks.forEach(function(r){var d=el('div','blk');d.appendChild(el('span','t',r[0]));var c=el('div');c.appendChild(el('div',null,r[1]));if(r[2])c.appendChild(el('div','k',r[2]));d.appendChild(c);bl.appendChild(d)})}
+    else bl.appendChild(el('p','empty',e.kind==='game'?'Use the Game day tab for the rotation and checklist.':'No plan for this session.'));
+    $('planSrc').textContent=pv.source?'Drills from: '+pv.source:'';
+    var at=$('att');at.textContent='';var A=pv.attendance||{};P.players.slice().sort(function(a,b){return a.first<b.first?-1:1}).forEach(function(p){var b=el('button',null,p.first);b.type='button';b.setAttribute('aria-pressed',A[p.id]?'true':'false');b.addEventListener('click',function(){var on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on?'true':'false');var u={attendance:{}};u.attendance[p.id]=on;write('events/'+e.id,u)});at.appendChild(b)});
+    if(!P.players.length)at.appendChild(el('p','empty','Loading roster…'));
+    var nt=$('notes');if(document.activeElement!==nt)nt.value=pv.notes||'';nt.onchange=function(){write('events/'+e.id,{notes:nt.value})}}
+  function taskRow(t){var r=el('div','task'+(t.done?' done':''));var cb=document.createElement('input');cb.type='checkbox';cb.checked=!!t.done;cb.id='t-'+t.id;cb.addEventListener('change',function(){write('tasks/'+t.id,{done:cb.checked})});r.appendChild(cb);var lb=el('label',null,t.title);lb.htmlFor=cb.id;r.appendChild(lb);var rt=el('span');var late=!t.done&&t.due&&pd(t.due)<today;if(t.due)rt.appendChild(el('span','due'+(late?' late':''),fmt(t.due)));var x=el('button','x','✕');x.type='button';x.setAttribute('aria-label','Delete '+t.title);x.addEventListener('click',function(){if(x.dataset.c){db&&db.doc('tasks/'+t.id).delete().catch(fail)}else{x.dataset.c=1;x.textContent='Delete?';setTimeout(function(){delete x.dataset.c;x.textContent='✕'},3000)}});rt.appendChild(x);r.appendChild(rt);return r}
+  function renderTasks(){var box=$('taskGroups');box.textContent='';var hide=$('hideDone').checked;var open=P.tasks.filter(function(t){return !t.done}),late=open.filter(function(t){return t.due&&pd(t.due)<today});var s=$('stat');s.textContent='';[[open.length,'open'],[late.length,'overdue'],[P.tasks.length-open.length,'done']].forEach(function(p){var d=el('div');d.appendChild(el('b',null,String(p[0])));d.appendChild(el('span',null,p[1]));s.appendChild(d)});
+    GROUPS.forEach(function(g){var list=P.tasks.filter(function(t){return (t.group||GROUPS[2])===g&&(!hide||!t.done)}).sort(function(a,b){return (a.order||0)-(b.order||0)});if(!list.length)return;box.appendChild(el('div','label',g));var w=el('div');list.forEach(function(t){w.appendChild(taskRow(t))});box.appendChild(w)});
+    if(!P.tasks.length)box.appendChild(el('p','empty',loaded.tasks?'No tasks yet.':'Loading tasks…'))}
+  $('hideDone').addEventListener('change',renderTasks);
+  $('addTask').addEventListener('click',function(){var t=$('newTask').value.trim();if(!t||!db)return;db.collection('tasks').add({title:t,group:$('newGroup').value,due:$('newDue').value||'',done:false,order:Date.now()}).then(function(){$('newTask').value='';$('newDue').value=''}).catch(fail)});
+  function renderPlayers(){var box=$('players');box.textContent='';if(!P.players.length){box.appendChild(el('p','empty',loaded.players?'No players.':'Loading roster…'));return}
+    var taken=Object.keys(P.events).filter(function(k){var a=P.events[k].attendance;return a&&Object.keys(a).some(function(x){return a[x]})});
+    P.players.slice().sort(function(a,b){return a.first<b.first?-1:1}).forEach(function(p){var c=el('details','card pl');var s=el('summary');var nm=el('span',null,(p.number?'#'+p.number+' ':'')+p.first+' '+(p.last||''));if(p.medical&&p.medical.trim())nm.appendChild(el('span','flag','Medical note'));s.appendChild(nm);var cnt=taken.filter(function(k){return P.events[k].attendance[p.id]}).length;s.appendChild(el('small',null,cnt+'/'+taken.length+' attended'));c.appendChild(s);
+      var dl=el('dl');[["Parent",p.parent],["Phone",p.phone,"tel:+1"+String(p.phone||"").replace(/\D/g,"")],["Email",p.email,"mailto:"+p.email],["Shirt size",p.jersey],["Grade",p.grade],["School",p.school]].forEach(function(r){if(!r[1])return;dl.appendChild(el('dt',null,r[0]));var dd=el('dd');if(r[2]){var lk=el('a',null,r[1]);lk.href=r[2];lk.target='_blank';lk.rel='noopener';dd.appendChild(lk)}else dd.textContent=r[1];dl.appendChild(dd)});c.appendChild(dl);
+      var jl=el('label','label','Player number');jl.htmlFor='jn-'+p.id;c.appendChild(jl);var jn=document.createElement('input');jn.id='jn-'+p.id;jn.type='text';jn.inputMode='numeric';jn.maxLength=3;jn.size=4;jn.value=p.number||'';jn.placeholder='When assigned';jn.addEventListener('change',function(){write('players/'+p.id,{number:jn.value.trim()})});c.appendChild(jn);var ml=el('label','label','Medical / allergies');ml.htmlFor='m-'+p.id;c.appendChild(ml);var m=document.createElement('textarea');m.id='m-'+p.id;m.value=p.medical||'';m.placeholder='None reported yet';m.addEventListener('change',function(){write('players/'+p.id,{medical:m.value})});c.appendChild(m);
+      var nl=el('label','label','Coach notes');nl.htmlFor='cn-'+p.id;c.appendChild(nl);var nt=document.createElement('textarea');nt.id='cn-'+p.id;nt.value=p.notes||'';nt.addEventListener('change',function(){write('players/'+p.id,{notes:nt.value})});c.appendChild(nt);box.appendChild(c)})}
+  function pname(id){var p=P.players.find(function(x){return x.id===id});return p?(p.number?'#'+p.number+' ':'')+p.first:'?'}
+  var SEG=['1st half 0–5','1st half 5–10','1st half 10–15','1st half 15–20','2nd half 0–5','2nd half 5–10','2nd half 10–15','2nd half 15–20'];
+  var GD={here:[],seed:[],step:0},gdLoaded=false;
+  function plan(){var here=GD.here.filter(function(id){return P.players.some(function(p){return p.id===id})});if(!here.length)return null;
+    var seed=GD.seed.filter(function(i){return here.indexOf(i)>=0});here.forEach(function(i){if(seed.indexOf(i)<0)seed.push(i)});
+    var cnt={},sat={},segs=[];seed.forEach(function(i){cnt[i]=0;sat[i]=false});
+    for(var k=0;k<8;k++){var on=seed.slice().sort(function(x,y){return (cnt[x]-cnt[y])||((sat[y]?1:0)-(sat[x]?1:0))||(seed.indexOf(x)-seed.indexOf(y))}).slice(0,Math.min(5,seed.length));
+      seed.forEach(function(i){var p=on.indexOf(i)>=0;if(p)cnt[i]++;sat[i]=!p});segs.push(on)}
+    return {ids:seed,segs:segs,cnt:cnt}}
+  function saveGD(){if(db)db.doc('settings/gameday').set({here:GD.here,seed:GD.seed,step:GD.step}).catch(fail)}
+  function renderGD(){var h=$('gdHere');h.textContent='';P.players.slice().sort(function(a,b){return a.first<b.first?-1:1}).forEach(function(p){var b=el('button',null,p.first);b.type='button';var on=GD.here.indexOf(p.id)>=0;b.setAttribute('aria-pressed',on?'true':'false');b.addEventListener('click',function(){var i=GD.here.indexOf(p.id);if(i>=0)GD.here.splice(i,1);else GD.here.push(p.id);GD.step=0;saveGD();renderGD()});h.appendChild(b)});
+    var pl=plan(),now=$('gdNow'),t=$('rot');now.textContent='';t.textContent='';
+    if(!pl){$('gdSum').textContent='';now.appendChild(el('p','empty','Tap who is here to build the plan.'));$('gdMins').textContent='';$('gdFT').textContent='Pick who\'s here first.';return}
+    var n=pl.ids.length;$('gdSum').textContent=n+' here'+(n<5?' · fewer than 5: everyone plays, tell the refs':'');
+    var k=Math.max(0,Math.min(7,GD.step));var cur=pl.segs[k],prev=k>0?pl.segs[k-1]:null,nxt=k<7?pl.segs[k+1]:null;
+    now.appendChild(el('div','label',(k+1)+' of 8 · '+SEG[k]+(k===4?' (after halftime)':'')));
+    var c=el('div','court');cur.forEach(function(id){c.appendChild(el('span',null,pname(id)))});now.appendChild(el('p','small','On the court now:'));now.appendChild(c);
+    var bench=pl.ids.filter(function(i){return cur.indexOf(i)<0});if(bench.length)now.appendChild(el('p','banner','Bench: '+bench.map(pname).join(', ')));
+    if(nxt){var out=cur.filter(function(i){return nxt.indexOf(i)<0}),inn=nxt.filter(function(i){return cur.indexOf(i)<0});var sw=el('div','swap');
+      sw.appendChild(el('div','label','At the next stop'+(k===3?' (halftime)':'')));
+      if(!out.length)sw.appendChild(el('p',null,'No change: same five stay on.'));else{var o=el('p');o.appendChild(el('strong',null,'Off: '));o.appendChild(document.createTextNode(out.map(pname).join(', ')));sw.appendChild(o);var i2=el('p');i2.appendChild(el('strong',null,'On: '));i2.appendChild(document.createTextNode(inn.map(pname).join(', ')));sw.appendChild(i2);sw.appendChild(el('p','small','Cameron: have '+inn.map(pname).join(' and ')+' waiting at half court before the whistle.'))}
+      now.appendChild(sw)}else now.appendChild(el('p','banner','Last segment. After the buzzer: team cheer, handshake line.'));
+    $('gdPrev').disabled=k===0;$('gdNext').disabled=k===7;
+    var th=el('thead'),hr=el('tr');['Player','1','2','3','4','5','6','7','8','Min'].forEach(function(x,i){var c2=el('th',i===k+1?'cur':null,x);hr.appendChild(c2)});th.appendChild(hr);t.appendChild(th);var bd=el('tbody');
+    pl.ids.forEach(function(id){var tr=el('tr');tr.appendChild(el('td',null,pname(id)));pl.segs.forEach(function(sg,i){tr.appendChild(el('td',(sg.indexOf(id)>=0?'on':'off')+(i===k?' cur':''),sg.indexOf(id)>=0?'●':'·'))});tr.appendChild(el('td',null,String(pl.cnt[id]*5)));bd.appendChild(tr)});t.appendChild(bd);
+    var mins=pl.ids.map(function(i){return pl.cnt[i]*5});$('gdMins').textContent='Columns 1–4 are the 1st half, 5–8 the 2nd. Minutes range '+Math.min.apply(null,mins)+'–'+Math.max.apply(null,mins)+' of 40 (league: at least 20, within 5 of each other).';
+    var ft=$('gdFT');ft.className='';ft.textContent=pl.ids.map(function(i,ix){return (ix+1)+'. '+pname(i)}).join('   ')+(n<8?'   (if the other team has more players, some take a second shot; max two each)':'')}
+  var rsT=null;$('gdReset').addEventListener('click',function(){var b=$('gdReset');if(!rsT){b.textContent='Tap again to clear';rsT=setTimeout(function(){rsT=null;b.textContent='Reset'},3000);return}clearTimeout(rsT);rsT=null;b.textContent='Reset';GD={here:[],seed:[],step:0};saveGD();renderGD()});
+  $('gdNext').addEventListener('click',function(){GD.step=Math.min(7,GD.step+1);saveGD();renderGD()});
+  $('gdPrev').addEventListener('click',function(){GD.step=Math.max(0,GD.step-1);saveGD();renderGD()});
+  $('gdShuffle').addEventListener('click',function(){var o=GD.here.slice();for(var i=o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=o[i];o[i]=o[j];o[j]=x}GD.seed=o;GD.step=0;saveGD();renderGD()});
+  var ROLES_GAME=[["Starting point","A suggested split so nothing falls through the cracks. Trade jobs whenever it makes sense."],["Before tip-off","Brett: meet the refs and the other coach (match-ups, who is spokesman). Cameron: wristbands on, warm-up lines, confirm the clock family is at the scorer's table."],["During play","Brett: coaches on the court and calls subs from this page. Cameron: runs the bench, lines up the next group at half court before each stop, keeps the bench cheering."],["Halftime","Cameron: lines up free throws in the order shown. Brett: 30-second talk, one thing going well and one thing to work on."],["After","Brett: team cheer and handshake line. Cameron: collects wristbands and pinnies, points the snack family to the spot outside the gym."]];
+  var ROLES_PRACTICE=[["Starting point","A suggested split so nothing falls through the cracks. Trade jobs whenever it makes sense."],["Before 5:30","Brett: plan, whistle, poly spots. Cameron: balls pumped, water bottles, pinnies."],["Huddles","Brett leads. Cameron takes attendance on this page."],["Warm-up","Brett calls it. Cameron stands at the far end as the turnaround point and gives high-fives."],["Rule of the week","Brett explains. Cameron acts it out (the travel, the foul)."],["Skills","Brett demonstrates once for everyone, then two groups run the same drill side by side: Brett with group 1, Cameron with group 2."],["Water breaks","Cameron runs them. Brett sets up the next drill."],["Scrimmage","Brett refs and coaches one end. Cameron coaches the other end and makes sure every player touches the ball."],["Cleanup","Cameron raises hoops and sweeps. Brett hands each player to their grown-up."]];
+  function roleList(box,list){box.textContent='';list.forEach(function(r){var p=el('p');p.appendChild(el('strong',null,r[0]+': '));p.appendChild(document.createTextNode(r[1]));box.appendChild(p)})}
+  function roleFor(a){if(/Welcome/.test(a))return'Brett: parent hello · Cameron: name tags and the kids\' circle';if(/huddle/i.test(a))return'Brett leads · Cameron takes attendance';if(/Warm-up/.test(a))return'Brett calls it · Cameron at the far end';if(/Rule of the week|Court basics/.test(a))return'Brett explains · Cameron demonstrates';if(/^Skill/.test(a))return'Brett demos · then Brett group 1, Cameron group 2';if(/^Water/.test(a))return'Cameron runs it · Brett sets up next drill';if(/Scrimmage/.test(a))return'Brett refs · Cameron coaches the other end';return''}
+  function renderFiles(dl){var f=$('files');f.textContent='';FILES.forEach(function(x){var r=el('div');r.appendChild(el('span',null,x[0]));var a=el('span','v');var o=el('a',null,'Open');o.href=x[1];o.target='_blank';o.rel='noopener';a.appendChild(o);if(dl){a.appendChild(document.createTextNode(' · '));var s=el('a',null,'Save');s.href='#coach';s.addEventListener('click',function(ev){ev.preventDefault();fetch(x[1]).then(function(r){return r.blob()}).then(function(bl){return dl.save({filename:x[1].split('/').pop(),data:bl})}).catch(function(){s.textContent='Not saved'})});a.appendChild(s)}r.appendChild(a);f.appendChild(r)})}
+
+  var DLNS=null;
+  function loadPdfLib(){return new Promise(function(res,rej){if(window.jspdf&&window.jspdf.jsPDF)return res(window.jspdf.jsPDF);var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';sc.onload=function(){window.jspdf?res(window.jspdf.jsPDF):rej()};sc.onerror=rej;document.head.appendChild(sc)})}
+  function clean(t){return String(t||'').replace(/→/g,'>').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/…/g,'...').replace(/–|—/g,'-')}
+  function buildPdf(J,e){var pv=P.events[e.id]||{},sh=pv.sheet;var doc=new J({unit:'pt',format:'letter'});var W=612,H=792,M=34,y=M,cw=W-2*M;
+    function need(h){if(y+h>H-M){doc.addPage();y=M}}
+    function text(t,x,size,style,color,width){doc.setFont('helvetica',style||'normal');doc.setFontSize(size);doc.setTextColor(color||'#1c1420');var lines=doc.splitTextToSize(clean(t),width||cw);var lh=size*1.18;need(lines.length*lh);lines.forEach(function(l){doc.text(l,x,y+size);y+=lh});return lines.length*lh}
+    text('Tornado Tigers · '+label(e)+(e.theme?' · '+e.theme:''),M,15,'bold','#b84f05');
+    text(fmt(e.date)+' · 5:30-6:30 pm · Rockwell Elementary · Coaches Brett and Cameron',M,10,'normal','#6e6070');y+=6;
+    if(sh&&sh.setup){text('Before 5:30: '+sh.setup,M,8.8,'normal');y+=3}
+    doc.setDrawColor('#1c1420');doc.setLineWidth(1);doc.line(M,y,W-M,y);y+=8;
+    var rows=sh?sh.rows:[];rows.forEach(function(r){var role=roleFor(r.a);var est=40;need(est);var top=y;
+      doc.setLineWidth(.8);doc.setDrawColor('#1c1420');doc.rect(M,top+2,10,10);
+      var x=M+20;doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.setTextColor('#b84f05');doc.text(clean(r.t),x,top+11);
+      var x2=x+40,w2=cw-60;y=top;text(r.a,x2,10,'bold','#1c1420',w2);
+      if(r.how)text(r.how,x2,8.8,'normal','#1c1420',w2);
+      if(r.cue)text('Say: '+r.cue.replace(/^"|"$/g,''),x2,8.8,'italic','#0e6f7a',w2);
+      if(role)text(role,x2,8,'normal','#9a2259',w2);
+      y+=3;doc.setDrawColor('#d8ccd4');doc.setLineWidth(.5);doc.line(M,y,W-M,y);y+=5});
+    var names=P.players.slice().sort(function(a,b){return a.first<b.first?-1:1}).map(function(p){return p.first});
+    if(names.length){need(60);text('Attendance',M,11,'bold');var cx=M;names.forEach(function(n){doc.setFont('helvetica','normal');doc.setFontSize(10);var w=doc.getTextWidth(n)+30;if(cx+w>W-M){cx=M;y+=18}need(18);doc.rect(cx,y+1,9,9);doc.text(n,cx+14,y+9);cx+=w});y+=26}
+    need(70);text('Notes: what went well, what to repeat',M,10,'bold');for(var i=0;i<3;i++){y+=18;doc.setDrawColor('#d8ccd4');doc.line(M,y,W-M,y)}
+    return doc}
+  $('pdfBtn').addEventListener('click',function(){var e=curEv();var msg=$('pdfMsg');if(!e||!(P.events[e.id]||{}).sheet){msg.textContent='No practice sheet for this session.';return}
+    msg.textContent='Making PDF…';loadPdfLib().then(function(J){var doc=buildPdf(J,e);var blob=doc.output('blob');var name='Tigers_'+label(e).replace(/\s+/g,'_')+'_'+(e.date||'')+'.pdf';
+      if(!DLNS){msg.textContent='Saving files isn\'t available in this view.';return}
+      return DLNS.save({filename:name,data:blob}).then(function(){msg.textContent='Saved. Open it and print as many copies as you need.'})}).catch(function(){msg.textContent='Could not make the PDF. Try again in a moment.'})});
+  function enterCoach(art){COACH=true;ART=art;document.querySelectorAll('.coachonly').forEach(function(e){if(e.id!=='savebar')e.hidden=false});renderFamily();route();setPane('tonight');renderPick();renderTonight();renderFiles(null);roleList($('gdRoles'),ROLES_GAME);roleList($('prRoles'),ROLES_PRACTICE);renderGD();
+    window.claude.use('downloads').then(function(dl){DLNS=dl;if(dl)renderFiles(dl)}).catch(function(){});
+    var timer=setTimeout(function(){$('dbBanner').className='banner warn';$('dbBanner').textContent="Coach data can't be reached yet."},10000);
+    window.claude.use('db').then(function(d){if(!d){clearTimeout(timer);$('dbBanner').textContent='Coach data needs you to be signed in.';return}db=d;
+      function done(k){loaded[k]=1;if(loaded.tasks&&loaded.events&&loaded.players){clearTimeout(timer);$('dbBanner').hidden=true}}var err=function(e){clearTimeout(timer);fail(e)};
+      db.collection('tasks').onSnapshot(function(q){P.tasks=q.docs.map(function(x){var o=Object.assign({},x.data());o.id=x.id;return o});if(!q.metadata.fromCache)done('tasks');renderTasks()},err);
+      db.collection('events').onSnapshot(function(q){var m={};q.docs.forEach(function(x){m[x.id]=x.data()});P.events=m;if(!q.metadata.fromCache)done('events');renderTonight();renderPlayers()},err);
+      db.collection('players').onSnapshot(function(q){P.players=q.docs.map(function(x){var o=Object.assign({},x.data());o.id=x.id;return o});if(!q.metadata.fromCache)done('players');renderPlayers();renderTonight();renderGD()},err);
+      db.doc('settings/gameday').onSnapshot(function(s){if(s.exists&&!s.metadata.hasPendingWrites){var d=s.data();GD={here:(d.here||[]).slice(),seed:(d.seed||[]).slice(),step:d.step||0}}renderGD()},err)}).catch(function(){})}
+
+  renderFamily();route();
+  /* Families never touch the Claude runtime (no sign-in prompt). Coaches opt in once via the footer link or #coach; the device remembers. */
+  var CK='tt-coach-device',tried=false;function wantCoach(){try{return localStorage.getItem(CK)==='1'}catch(e){return false}}
+  function tryCoach(){if(tried||!(window.claude&&window.claude.use))return;tried=true;Promise.all([window.claude.use('user'),window.claude.use('artifact')]).then(function(r){if(!r[0]||!r[1])return;return r[0].canEdit().then(function(ok){if(ok){try{localStorage.setItem(CK,'1')}catch(e){}enterCoach(r[1]);if(location.hash==='#coach')route()}})}).catch(function(){})}
+  
+  window.addEventListener('hashchange',function(){if(location.hash==='#coach')tryCoach()});
+  var cl=document.getElementById('coachLogin');if(cl)cl.addEventListener('click',function(ev){ev.preventDefault();location.hash='#coach';tryCoach()});
+})();
+</script>
+
+</body>
+</html>
