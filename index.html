@@ -295,13 +295,13 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
       <li>Help with snacks and the game clock once or twice a season (see <a href="#snacks">Duties</a>).</li>
       <li>Send any allergy or medical notes to Coach Brett privately.</li>
       <li>Cheer for every player on both teams.</li></ul></div>
-    <p class="banner">Want to help at practice? Extra hands are always welcome; just text Coach Brett. Game times and team updates will move to the league's TeamSideline app once it's ready. Everything else is under <a href="#schedule">Schedule</a> and <a href="#info">Info</a>.</p>
+    <p class="banner">Want to help at practice? Extra hands are always welcome; just text a coach. Game times and team updates will move to the league's TeamSideline app once it's ready. Everything else is under <a href="#schedule">Schedule</a> and <a href="#info">Info</a>.</p>
   </div>
   <div class="card skill" id="skillCard"><span class="label">This week's skill</span><p id="skFocus">Loading…</p><p class="tip" id="skTip"></p></div>
   <div class="card" id="contactsCard"><span class="label">Questions or running late?</span>
     <div class="contacts">
       <div class="contact"><div><div class="who">Coach Brett</div><div class="num">425-829-4113</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-829-4113">Copy number</button></div></div>
-      <div class="contact"><div><div class="who">Coach Cameron <span class="num">(backup)</span></div><div class="num">425-736-4551</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-736-4551">Copy number</button></div></div>
+      <div class="contact"><div><div class="who">Coach Cameron</div><div class="num">425-736-4551</div></div><div class="btns"><button class="btn copy" type="button" data-copy="425-736-4551">Copy number</button></div></div>
     </div>
   </div>
 </section>
@@ -322,7 +322,7 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
       <li>Keep it simple: a drink (water or juice boxes), fruit, and one small treat.</li>
       <li><strong>Nut-free, please</strong>, individually packaged if you can.</li>
       <li>We hand snacks out outside the gym after the game; food isn't allowed on the court.</li>
-      <li>Can't make your game? Trade with another family and let Coach Brett know.</li>
+      <li>Can't make your game? Trade with another family and let a coach know.</li>
     </ul></div>
   <div class="card"><span class="label">Clock / scorebook duty</span>
     <ul class="dots">
@@ -340,7 +340,7 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
   <details class="acc" open><summary>What to bring</summary><div class="in"><ul class="dots"><li>Gym shoes and comfortable athletic clothes</li><li>Hair tied back, no jewelry</li><li>A water bottle (water only in the gym)</li><li>Jersey on game days. Jerseys arrive mid-November; players keep them and their basketballs.</li></ul></div></details>
   <details class="acc"><summary>Practice and drop-off</summary><div class="in"><p>Tuesdays 5:30–6:30 pm at Rockwell Elementary, 11125 162nd Ave NE, Redmond. Park in the front lot. The custodian unlocks around 5:30, so you may wait a few minutes. The league asks families to drop off or wait in the car; on the first night, please stay the first 5 minutes so we can all meet. Please pick up at 6:30.</p></div></details>
   <details class="acc"><summary>Games</summary><div class="in"><p>Saturdays, Dec 5 to early February, at Redmond Middle School or the Redmond Senior &amp; Community Center. Arrive 15 minutes early. The league lists us as “Shields.” No bouncing balls in the lobby, and the community center's upstairs is off-limits.</p></div></details>
-  <details class="acc"><summary>Playing time and missing a game</summary><div class="in"><p>The league's spirit is equal playing time. Five players play at once and we have eight, so we rotate every five minutes. No score or standings are kept at this age.</p><p>Missing a game? Please tell Coach Brett at least 24 hours ahead so the rotation stays fair. For practice, just a heads-up if your player will miss more than one.</p></div></details>
+  <details class="acc"><summary>Playing time and missing a game</summary><div class="in"><p>The league's spirit is equal playing time. Five players play at once and we have eight, so we rotate every five minutes. No score or standings are kept at this age.</p><p>Missing a game? Please tell a coach at least 24 hours ahead so the rotation stays fair. For practice, just a heads-up if your player will miss more than one.</p></div></details>
   <details class="acc"><summary>Bad weather</summary><div class="in"><p>The league posts game decisions by 7:30 am on game day at <a href="https://www.redmond.gov/sports" target="_blank" rel="noopener">redmond.gov/sports</a>. No practice when school is canceled.</p></div></details>
   <details class="acc"><summary>From the sidelines</summary><div class="in"><p>From the league's code of conduct: kids play to have fun, coaches are volunteers, officials are human, and parents are cheerleaders. Cheer for every player on both teams, and leave the coaching and the calls to the coaches and refs.</p></div></details>
   <details class="acc"><summary>Our team</summary><div class="in"><div class="roster" id="roster"></div><p><strong>Coach Brett Shields</strong> (Andie's dad) · 425-829-4113<br><strong>Coach Cameron O'Brochta</strong> (Evelyn's parent) · 425-736-4551</p></div></details>
@@ -493,7 +493,7 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
     var bench=pl.ids.filter(function(i){return cur.indexOf(i)<0});if(bench.length)now.appendChild(el('p','banner','Bench: '+bench.map(pname).join(', ')));
     if(nxt){var out=cur.filter(function(i){return nxt.indexOf(i)<0}),inn=nxt.filter(function(i){return cur.indexOf(i)<0});var sw=el('div','swap');
       sw.appendChild(el('div','label','At the next stop'+(k===3?' (halftime)':'')));
-      if(!out.length)sw.appendChild(el('p',null,'No change: same five stay on.'));else{var o=el('p');o.appendChild(el('strong',null,'Off: '));o.appendChild(document.createTextNode(out.map(pname).join(', ')));sw.appendChild(o);var i2=el('p');i2.appendChild(el('strong',null,'On: '));i2.appendChild(document.createTextNode(inn.map(pname).join(', ')));sw.appendChild(i2);sw.appendChild(el('p','small','Cameron: have '+inn.map(pname).join(' and ')+' waiting at half court before the whistle.'))}
+      if(!out.length)sw.appendChild(el('p',null,'No change: same five stay on.'));else{var o=el('p');o.appendChild(el('strong',null,'Off: '));o.appendChild(document.createTextNode(out.map(pname).join(', ')));sw.appendChild(o);var i2=el('p');i2.appendChild(el('strong',null,'On: '));i2.appendChild(document.createTextNode(inn.map(pname).join(', ')));sw.appendChild(i2);sw.appendChild(el('p','small','Bench coach: have '+inn.map(pname).join(' and ')+' waiting at half court before the whistle.'))}
       now.appendChild(sw)}else now.appendChild(el('p','banner','Last segment. After the buzzer: team cheer, handshake line.'));
     $('gdPrev').disabled=k===0;$('gdNext').disabled=k===7;
     var th=el('thead'),hr=el('tr');['Player','1','2','3','4','5','6','7','8','Min'].forEach(function(x,i){var c2=el('th',i===k+1?'cur':null,x);hr.appendChild(c2)});th.appendChild(hr);t.appendChild(th);var bd=el('tbody');
@@ -504,38 +504,42 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
   $('gdNext').addEventListener('click',function(){GD.step=Math.min(7,GD.step+1);saveGD();renderGD()});
   $('gdPrev').addEventListener('click',function(){GD.step=Math.max(0,GD.step-1);saveGD();renderGD()});
   $('gdShuffle').addEventListener('click',function(){var o=GD.here.slice();for(var i=o.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=o[i];o[i]=o[j];o[j]=x}GD.seed=o;GD.step=0;saveGD();renderGD()});
-  var ROLES_GAME=[["Starting point","A suggested split so nothing falls through the cracks. Trade jobs whenever it makes sense."],["Before tip-off","Brett: meet the refs and the other coach (match-ups, who is spokesman). Cameron: wristbands on, warm-up lines, confirm the clock family is at the scorer's table."],["During play","Brett: coaches on the court and calls subs from this page. Cameron: runs the bench, lines up the next group at half court before each stop, keeps the bench cheering."],["Halftime","Cameron: lines up free throws in the order shown. Brett: 30-second talk, one thing going well and one thing to work on."],["After","Brett: team cheer and handshake line. Cameron: collects wristbands and pinnies, points the snack family to the spot outside the gym."]];
-  var ROLES_PRACTICE=[["Starting point","A suggested split so nothing falls through the cracks. Trade jobs whenever it makes sense."],["Before 5:30","Brett: plan, whistle, poly spots. Cameron: balls pumped, water bottles, pinnies."],["Huddles","Brett leads. Cameron takes attendance on this page."],["Warm-up","Brett calls it. Cameron stands at the far end as the turnaround point and gives high-fives."],["Rule of the week","Brett explains. Cameron acts it out (the travel, the foul)."],["Skills","Brett demonstrates once for everyone, then two groups run the same drill side by side: Brett with group 1, Cameron with group 2."],["Water breaks","Cameron runs them. Brett sets up the next drill."],["Scrimmage","Brett refs and coaches one end. Cameron coaches the other end and makes sure every player touches the ball."],["Cleanup","Cameron raises hoops and sweeps. Brett hands each player to their grown-up."]];
+  var ROLES_GAME=[["Starting point", "Two coaches, equal jobs. Split it however works that day."], ["Before tip-off", "One coach: meet the refs and the other coach (match-ups, who is spokesman). The other: wristbands on, warm-up lines, check the clock family is at the scorer's table."], ["During play", "One coach calls subs from this page; the other runs the bench, lines up the next group at half court and keeps the bench cheering."], ["Halftime", "One coach lines up free throws in the order shown; the other gives a 30-second talk: one thing going well, one to work on."], ["After", "Team cheer and handshake line. Collect wristbands and pinnies, and point the snack family to the spot outside the gym."]];
+  var ROLES_PRACTICE=[["Starting point", "Two coaches, equal jobs. Split it however works that night."], ["Before 5:30", "One coach: plan, whistle, poly spots. The other: balls pumped, water bottles, pinnies."], ["Huddles", "One coach leads; the other gets everyone sitting and listening."], ["Warm-up", "One coach calls it; the other stands at the far end as the turnaround point."], ["Rules and court basics", "One coach explains; the other acts it out (the travel, the foul)."], ["Skills", "Demo once for everyone, then two groups run the same drill side by side, one coach per group."], ["Water breaks", "One coach runs them; the other sets up the next drill."], ["Scrimmage", "One coach refs; the other coaches and makes sure every player touches the ball."], ["Cleanup", "One coach raises hoops and sweeps; the other hands each player to their grown-up."]];
   function roleList(box,list){box.textContent='';list.forEach(function(r){var p=el('p');p.appendChild(el('strong',null,r[0]+': '));p.appendChild(document.createTextNode(r[1]));box.appendChild(p)})}
-  function roleFor(a){if(/Welcome/.test(a))return'Brett: parent hello · Cameron: name tags and the kids\' circle';if(/huddle/i.test(a))return'Brett leads · Cameron takes attendance';if(/Warm-up/.test(a))return'Brett calls it · Cameron at the far end';if(/Rule of the week|Court basics/.test(a))return'Brett explains · Cameron demonstrates';if(/^Skill/.test(a))return'Brett demos · then Brett group 1, Cameron group 2';if(/^Water/.test(a))return'Cameron runs it · Brett sets up next drill';if(/Scrimmage/.test(a))return'Brett refs · Cameron coaches the other end';return''}
+  function roleFor(a){if(/Welcome/.test(a))return'Coaches: one greets parents, one runs the kids\' circle';if(/huddle/i.test(a))return'Coaches: one leads, one keeps everyone listening';if(/Warm-up/.test(a))return'Coaches: one calls it, one at the far end';if(/Rule of the week|Court basics/.test(a))return'Coaches: one explains, one demonstrates';if(/^Skill/.test(a))return'Coaches: demo together, then one coach per group';if(/^Water/.test(a))return'Coaches: one runs it, one sets up the next drill';if(/Scrimmage/.test(a))return'Coaches: one refs, one coaches';return''}
   function renderFiles(dl){var f=$('files');f.textContent='';FILES.forEach(function(x){var r=el('div');r.appendChild(el('span',null,x[0]));var a=el('span','v');var o=el('a',null,'Open');o.href=x[1];o.target='_blank';o.rel='noopener';a.appendChild(o);if(dl){a.appendChild(document.createTextNode(' · '));var s=el('a',null,'Save');s.href='#coach';s.addEventListener('click',function(ev){ev.preventDefault();fetch(x[1]).then(function(r){return r.blob()}).then(function(bl){return dl.save({filename:x[1].split('/').pop(),data:bl})}).catch(function(){s.textContent='Not saved'})});a.appendChild(s)}r.appendChild(a);f.appendChild(r)})}
 
   var DLNS=null;
   function loadPdfLib(){return new Promise(function(res,rej){if(window.jspdf&&window.jspdf.jsPDF)return res(window.jspdf.jsPDF);var sc=document.createElement('script');sc.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';sc.onload=function(){window.jspdf?res(window.jspdf.jsPDF):rej()};sc.onerror=rej;document.head.appendChild(sc)})}
   function clean(t){return String(t||'').replace(/→/g,'>').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/…/g,'...').replace(/–|—/g,'-')}
-  function buildPdf(J,e){var pv=P.events[e.id]||{},sh=pv.sheet;var doc=new J({unit:'pt',format:'letter'});var W=612,H=792,M=34,y=M,cw=W-2*M;
-    function need(h){if(y+h>H-M){doc.addPage();y=M}}
-    function text(t,x,size,style,color,width){doc.setFont('helvetica',style||'normal');doc.setFontSize(size);doc.setTextColor(color||'#1c1420');var lines=doc.splitTextToSize(clean(t),width||cw);var lh=size*1.18;need(lines.length*lh);lines.forEach(function(l){doc.text(l,x,y+size);y+=lh});return lines.length*lh}
+  function buildPdf(J,e){var best=null;for(var k=1;k>=0.55;k-=0.05){var r=layPdf(J,e,k);best=r;if(!r.over)break}return best.doc}
+  function layPdf(J,e,k){var pv=P.events[e.id]||{},sh=pv.sheet;var doc=new J({unit:'pt',format:'letter'});var W=612,H=792,M=32,y=M,cw=W-2*M,over=false;
+    function need(h){if(y+h>H-M)over=true}
+    function text(t,x,size,style,color,width){size=size*k;doc.setFont('helvetica',style||'normal');doc.setFontSize(size);doc.setTextColor(color||'#1c1420');var lines=doc.splitTextToSize(clean(t),width||cw);var lh=size*1.18;need(lines.length*lh);lines.forEach(function(l){doc.text(l,x,y+size);y+=lh});return lines.length*lh}
     text('Tornado Tigers · '+label(e)+(e.theme?' · '+e.theme:''),M,15,'bold','#b84f05');
-    text(fmt(e.date)+' · 5:30-6:30 pm · Rockwell Elementary · Coaches Brett and Cameron',M,10,'normal','#6e6070');y+=6;
-    if(sh&&sh.setup){text('Before 5:30: '+sh.setup,M,8.8,'normal');y+=3}
-    doc.setDrawColor('#1c1420');doc.setLineWidth(1);doc.line(M,y,W-M,y);y+=8;
-    var rows=sh?sh.rows:[];rows.forEach(function(r){var role=roleFor(r.a);var est=40;need(est);var top=y;
-      doc.setLineWidth(.8);doc.setDrawColor('#1c1420');doc.rect(M,top+2,10,10);
-      var x=M+20;doc.setFont('helvetica','bold');doc.setFontSize(10.5);doc.setTextColor('#b84f05');doc.text(clean(r.t),x,top+11);
-      var x2=x+40,w2=cw-60;y=top;text(r.a,x2,10,'bold','#1c1420',w2);
+    text(fmt(e.date)+' · 5:30-6:30 pm · Rockwell Elementary · Coaches Brett and Cameron',M,10,'normal','#6e6070');y+=5*k;
+    if(sh&&sh.setup){text('Before 5:30: '+sh.setup,M,8.8,'normal');y+=3*k}
+    doc.setDrawColor('#1c1420');doc.setLineWidth(1);doc.line(M,y,W-M,y);y+=7*k;
+    var rows=sh?sh.rows:[];rows.forEach(function(r){var role=roleFor(r.a);var top=y;
+      var bx=10*k;doc.setLineWidth(.8);doc.setDrawColor('#1c1420');doc.rect(M,top+2*k,bx,bx);
+      var x=M+bx+10;doc.setFont('helvetica','bold');doc.setFontSize(10.5*k);doc.setTextColor('#b84f05');doc.text(clean(r.t),x,top+11*k);
+      var x2=x+40*k,w2=W-M-x2;y=top;text(r.a,x2,10,'bold','#1c1420',w2);
       if(r.how)text(r.how,x2,8.8,'normal','#1c1420',w2);
       if(r.cue)text('Say: '+r.cue.replace(/^"|"$/g,''),x2,8.8,'italic','#0e6f7a',w2);
       if(role)text(role,x2,8,'normal','#9a2259',w2);
-      y+=3;doc.setDrawColor('#d8ccd4');doc.setLineWidth(.5);doc.line(M,y,W-M,y);y+=5});
-    var names=P.players.slice().sort(function(a,b){return a.first<b.first?-1:1}).map(function(p){return p.first});
-    if(names.length){need(60);text('Attendance',M,11,'bold');var cx=M;names.forEach(function(n){doc.setFont('helvetica','normal');doc.setFontSize(10);var w=doc.getTextWidth(n)+30;if(cx+w>W-M){cx=M;y+=18}need(18);doc.rect(cx,y+1,9,9);doc.text(n,cx+14,y+9);cx+=w});y+=26}
-    need(70);text('Notes: what went well, what to repeat',M,10,'bold');for(var i=0;i<3;i++){y+=18;doc.setDrawColor('#d8ccd4');doc.line(M,y,W-M,y)}
-    return doc}
-  $('pdfBtn').addEventListener('click',function(){var e=curEv();var msg=$('pdfMsg');if(!e||!(P.events[e.id]||{}).sheet){msg.textContent='No practice sheet for this session.';return}
-    msg.textContent='Making PDF…';loadPdfLib().then(function(J){var doc=buildPdf(J,e);var blob=doc.output('blob');var name='Tigers_'+label(e).replace(/\s+/g,'_')+'_'+(e.date||'')+'.pdf';
-      if(!DLNS){msg.textContent='Saving files isn\'t available in this view.';return}
-      return DLNS.save({filename:name,data:blob}).then(function(){msg.textContent='Saved. Open it and print as many copies as you need.'})}).catch(function(){msg.textContent='Could not make the PDF. Try again in a moment.'})});
+      y+=3*k;doc.setDrawColor('#d8ccd4');doc.setLineWidth(.5);doc.line(M,y,W-M,y);y+=4*k});
+    return {doc:doc,over:over}}
+  function pdfFor(e){return loadPdfLib().then(function(J){var doc=buildPdf(J,e);return {blob:doc.output('blob'),name:'Tigers_'+label(e).replace(/\s+/g,'_')+'_'+(e.date||'')+'.pdf'}})}
+  function pdfReady(){var e=curEv();if(!e||!(P.events[e.id]||{}).sheet){$('pdfMsg').textContent='No practice sheet for this session.';return null}return e}
+  $('pdfBtn').addEventListener('click',function(){var e=pdfReady(),msg=$('pdfMsg');if(!e)return;msg.textContent='Making PDF…';
+    pdfFor(e).then(function(p){if(!DLNS){msg.textContent='Saving files isn\'t available in this view.';return}
+      return DLNS.save({filename:p.name,data:p.blob}).then(function(){msg.textContent='Saved. One page, ready to print or send.'})}).catch(function(){msg.textContent='Could not make the PDF. Try again in a moment.'})});
+  $('shareBtn').addEventListener('click',function(){var e=pdfReady(),msg=$('pdfMsg');if(!e)return;msg.textContent='Making PDF…';
+    pdfFor(e).then(function(p){var file;try{file=new File([p.blob],p.name,{type:'application/pdf'})}catch(x){}
+      if(file&&navigator.canShare&&navigator.canShare({files:[file]})){return navigator.share({files:[file],title:'Tigers '+label(e)}).then(function(){msg.textContent='Shared.'},function(err){if(err&&err.name==='AbortError'){msg.textContent=''}else if(DLNS){return DLNS.save({filename:p.name,data:p.blob}).then(function(){msg.textContent='Sharing isn\'t available here, so it was saved instead. Send it from your Files or Downloads.'})}})}
+      if(DLNS)return DLNS.save({filename:p.name,data:p.blob}).then(function(){msg.textContent='Sharing isn\'t available here, so it was saved instead. Send it from your Files or Downloads.'});
+      msg.textContent='Sharing isn\'t available in this view.'}).catch(function(){msg.textContent='Could not make the PDF. Try again in a moment.'})});
   function enterCoach(art){COACH=true;ART=art;document.querySelectorAll('.coachonly').forEach(function(e){if(e.id!=='savebar')e.hidden=false});renderFamily();route();setPane('tonight');renderPick();renderTonight();renderFiles(null);roleList($('gdRoles'),ROLES_GAME);roleList($('prRoles'),ROLES_PRACTICE);renderGD();
     window.claude.use('downloads').then(function(dl){DLNS=dl;if(dl)renderFiles(dl)}).catch(function(){});
     var timer=setTimeout(function(){$('dbBanner').className='banner warn';$('dbBanner').textContent="Coach data can't be reached yet."},10000);
