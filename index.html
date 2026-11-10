@@ -535,6 +535,10 @@ footer{color:var(--muted);font-size:.8rem;padding-block:18px 0}
   $('pdfBtn').addEventListener('click',function(){var e=pdfReady(),msg=$('pdfMsg');if(!e)return;msg.textContent='Making PDF…';
     pdfFor(e).then(function(p){if(!DLNS){msg.textContent='Saving files isn\'t available in this view.';return}
       return DLNS.save({filename:p.name,data:p.blob}).then(function(){msg.textContent='Saved. One page, ready to print or send.'})}).catch(function(){msg.textContent='Could not make the PDF. Try again in a moment.'})});
+  $('linkBtn').addEventListener('click',function(){var e=pdfReady(),msg=$('pdfMsg'),btn=$('linkBtn');if(!e)return;var url='https://brettshields00.github.io/tornado-tigers/plans/practice-'+e.n+'.pdf';
+    function done(){msg.textContent='Link copied. Paste it in a text: '+url;btn.textContent='Copied!';setTimeout(function(){btn.textContent='Copy link for Cameron'},2500)}
+    function sel(){var t=document.createElement('textarea');t.value=url;t.setAttribute('readonly','');t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');done()}catch(x){msg.textContent='Copy this link: '+url}document.body.removeChild(t)}
+    try{navigator.clipboard.writeText(url).then(done,sel)}catch(x){sel()}});
   $('shareBtn').addEventListener('click',function(){var e=pdfReady(),msg=$('pdfMsg');if(!e)return;msg.textContent='Making PDF…';
     pdfFor(e).then(function(p){var file;try{file=new File([p.blob],p.name,{type:'application/pdf'})}catch(x){}
       if(file&&navigator.canShare&&navigator.canShare({files:[file]})){return navigator.share({files:[file],title:'Tigers '+label(e)}).then(function(){msg.textContent='Shared.'},function(err){if(err&&err.name==='AbortError'){msg.textContent=''}else if(DLNS){return DLNS.save({filename:p.name,data:p.blob}).then(function(){msg.textContent='Sharing isn\'t available here, so it was saved instead. Send it from your Files or Downloads.'})}})}
